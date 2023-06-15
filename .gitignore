@@ -19,3 +19,11 @@
 
 # Go workspace file
 go.work
+
+id_goway
+id_goway.pub
+geoip.mmdb
+config.yaml
+goway
+
+bin/
