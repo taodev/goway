@@ -1,0 +1,16 @@
+[Unit]
+Description=goway service
+Documentation=https://github.com/taodev/goway
+After=network.target nss-lookup.target
+
+[Service]
+CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_BIND_SERVICE CAP_SYS_PTRACE CAP_DAC_READ_SEARCH
+AmbientCapabilities=CAP_NET_ADMIN CAP_NET_BIND_SERVICE CAP_SYS_PTRACE CAP_DAC_READ_SEARCH
+ExecStart=/usr/local/bin/goway -D /var/lib/goway -c /usr/local/etc/goway/config.yaml
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=on-failure
+RestartSec=10s
+LimitNOFILE=infinity
+
+[Install]
+WantedBy=multi-user.target

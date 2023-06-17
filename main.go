@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -13,8 +14,21 @@ import (
 )
 
 func main() {
-	// config.Default("config.yaml")
-	cfg, err := config.Load("config.yaml")
+	workingDir := flag.String("D", ".", "set working directory")
+	configPath := flag.String("c", "config.yaml", "set config file")
+	flag.Parse()
+
+	if *workingDir != "" {
+		_, err := os.Stat(*workingDir)
+		if err != nil {
+			os.MkdirAll(*workingDir, 0o777)
+		}
+		if err := os.Chdir(*workingDir); err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	cfg, err := config.Load(*configPath)
 	if err != nil {
 		log.Fatal(err)
 	}
