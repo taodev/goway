@@ -1,7 +1,10 @@
 [Unit]
 Description=goway service
 Documentation=https://github.com/taodev/goway
-After=network.target nss-lookup.target
+After=network.target
+After=network-online.target
+After=syslog.target
+After=nss-lookup.target
 
 [Service]
 CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_BIND_SERVICE CAP_SYS_PTRACE CAP_DAC_READ_SEARCH
