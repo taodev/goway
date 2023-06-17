@@ -23,11 +23,11 @@ install:
 	go install -v -trimpath -ldflags "-s -w -buildid="
 
 	sudo cp $(GOPATH)/goway /usr/local/bin
-	sudo mkdir -p /usr/local/etc/goway
-	sudo cp ./release/config.yaml /usr/local/etc/goway
-	sudo cp ./release/id_goway /usr/local/etc/goway
-	sudo cp ./release/id_goway.pub /usr/local/etc/goway
-	sudo cp ./release/goway.service /etc/systemd/system
+	# sudo mkdir -p /usr/local/etc/goway
+	# sudo cp ./release/config.yaml /usr/local/etc/goway
+	# sudo cp ./release/id_goway /usr/local/etc/goway
+	# sudo cp ./release/id_goway.pub /usr/local/etc/goway
+	# sudo cp ./release/goway.service /etc/systemd/system
 	sudo systemctl daemon-reload
 
 # 默认生成linux可执行文件

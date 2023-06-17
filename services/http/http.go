@@ -20,9 +20,9 @@ import (
 type HttpServer struct {
 	netflow.Netflow
 
-	Options   config.NodeConfig
-	Listener  net.Listener
-	sshDialer *myssh.SSHClient
+	Options  config.NodeConfig
+	Listener net.Listener
+	sshPool  *myssh.SSHClientPool
 }
 
 func (svr *HttpServer) ConnectRemoteSSH() (err error) {
@@ -31,7 +31,7 @@ func (svr *HttpServer) ConnectRemoteSSH() (err error) {
 		return
 	}
 
-	if svr.sshDialer, err = myssh.NewSSHClient(opts.SSH.URL, opts.SSH.IdentityFile); err != nil {
+	if svr.sshPool, err = myssh.NewSSHClientPool(opts.SSH.URL, opts.SSH.IdentityFile, 10); err != nil {
 		return
 	}
 
@@ -134,7 +134,7 @@ func (svr *HttpServer) OutToTCP(address string, inConn *net.Conn, req *http.HTTP
 	// 匹配跳板规则
 	bridge, ok := svr.Options.Match(address)
 	if ok {
-		outConn, err = svr.sshDialer.Dial("tcp", bridge)
+		outConn, err = svr.sshPool.Dial("tcp", bridge)
 		log.Println("bridge:", bridge, "host:", address)
 		localReply = false
 	} else {
@@ -142,10 +142,10 @@ func (svr *HttpServer) OutToTCP(address string, inConn *net.Conn, req *http.HTTP
 			outConn, err = net.Dial("tcp", address)
 		} else {
 			if len(svr.Options.Anonymous) > 0 {
-				outConn, err = svr.sshDialer.Dial("tcp", svr.Options.Anonymous)
+				outConn, err = svr.sshPool.Dial("tcp", svr.Options.Anonymous)
 				localReply = false
 			} else {
-				outConn, err = svr.sshDialer.Dial("tcp", address)
+				outConn, err = svr.sshPool.Dial("tcp", address)
 			}
 		}
 	}
@@ -222,7 +222,7 @@ func (svr *HttpServer) IoBind(src, dst net.Conn, fnClose func(err error)) {
 func (svr *HttpServer) Shutdown() {
 	svr.Listener.Close()
 	svr.Netflow.Stop()
-	svr.sshDialer.Shutdown()
+	svr.sshPool.Shutdown()
 }
 
 func (svr *HttpServer) Run() (err error) {
