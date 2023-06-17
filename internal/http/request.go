@@ -43,13 +43,20 @@ func NewHTTPRequest(inConn *net.Conn, bufSize int) (req HTTPRequest, err error) 
 	req.HeadBuf = buf[:len]
 	index := bytes.IndexByte(req.HeadBuf, '\n')
 	if index == -1 {
-		err = fmt.Errorf("http decoder data line err:%s", string(req.HeadBuf)[:50])
+		if len > 50 {
+			len = 50
+		}
+
+		err = fmt.Errorf("http decoder data line err:%s", string(req.HeadBuf)[:len])
 		CloseConn(inConn)
 		return
 	}
 	fmt.Sscanf(string(req.HeadBuf[:index]), "%s%s", &req.Method, &req.hostOrURL)
 	if req.Method == "" || req.hostOrURL == "" {
-		err = fmt.Errorf("http decoder data err:%s", string(req.HeadBuf)[:50])
+		if len > 50 {
+			len = 50
+		}
+		err = fmt.Errorf("http decoder data err:%s", string(req.HeadBuf)[:len])
 		CloseConn(inConn)
 		return
 	}

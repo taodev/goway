@@ -19,30 +19,15 @@ func main() {
 		log.Fatal(err)
 	}
 
-	hk1 := cfg.Http["hk1"]
-	matches := []string{
-		"chat.openai.com",
-		"openai.com",
-		"google.com",
-		"chat.openai.com:443",
-		"openai.com:443",
-		"google.com:443",
-	}
-
-	for _, v := range matches {
-		proxy, ok := hk1.Match(v)
-		log.Println(v, proxy, ok)
-	}
-
-	fmt.Println(cfg)
-
 	httpServs := make([]*gohttp.HttpServer, 0, len(cfg.Http))
 	for k, v := range cfg.Http {
 		svr := gohttp.NewHttpServer(v)
-		if err = svr.Run(); err != nil {
-			log.Printf("start http server: %s failed", k)
-			return
-		}
+		go func() {
+			if err = svr.Run(); err != nil {
+				log.Printf("start http server: %s failed", k)
+				return
+			}
+		}()
 
 		httpServs = append(httpServs, svr)
 	}
@@ -50,10 +35,12 @@ func main() {
 	socksServs := make([]*socks.SocksV5Server, 0, len(cfg.Http))
 	for k, v := range cfg.Socks5 {
 		svr := socks.NewSocksV5Server(v)
-		if err = svr.Run(); err != nil {
-			log.Printf("start http server: %s failed", k)
-			return
-		}
+		go func() {
+			if err = svr.Run(); err != nil {
+				log.Printf("start http server: %s failed", k)
+				return
+			}
+		}()
 
 		socksServs = append(socksServs, svr)
 	}

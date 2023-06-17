@@ -80,6 +80,11 @@ func InPRC(addr string) bool {
 		return true
 	}
 
+	// 判断是否局域网ip
+	if ip.IsPrivate() || ip.IsLoopback() || ip.IsLinkLocalMulticast() || ip.IsLinkLocalUnicast() {
+		return true
+	}
+
 	// 查询IP地址的归属地
 	record, err := geoipDB.Country(ip)
 	if err != nil {
